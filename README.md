@@ -1,2 +1,0 @@
-# cis452
-LabWithChad
