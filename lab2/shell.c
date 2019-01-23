@@ -30,10 +30,13 @@ int main()
 
     //token the rest
     while(token != NULL) {
-	    printf("%d\t: %s\n", i, token);
+	    printf("%d\t: %s", i, token);
+	    argv[i] = token;
 	    token = strtok(NULL, " ");
+            printf("\targv: %s\n", argv[i]);
 	    i++;
     }
-    puts("here1");
+
+    puts("END");
 }
 
