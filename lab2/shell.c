@@ -37,11 +37,24 @@ int main()
 	    token = strtok(NULL, " ");
 	    i++;
     }
+	 argv[i] = NULL;
+ 	 printf("%d\t: %s\n", i, argv[i]);
+	
+/*
+	argv[0] = "ls";
+	argv[1] = "-la";
+	argv[2] = NULL;
+	 printf("%d\t: %s\n", 0, argv[0]);
+	 printf("%d\t: %s\n", 1, argv[1]);
+	 printf("%d\t: %s\n", 2, argv[2]);
+*/
 
+
+   
    // while(strcmp(buf, "quit\n") != 0) {
 
    	 puts("Before the exec");
-   	 if (execvp(argv[0], &argv[1]) < 0) {
+   	 if (execvp(argv[0], argv) == -1) {
        		 perror("exec failed");
        		 exit(1);
    	 }
