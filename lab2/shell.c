@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,7 @@ int main()
 
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
-    puts("[user@machine HomeQQ]$");
+    puts("[user@machine Home]$");
 
     fgets(buf, STR_LEN, stdin);
     printf("Command: %s\n", buf);
@@ -26,36 +27,49 @@ int main()
     char* argv[MAX_ARG];
     char* cmd = buf;
     int i = 0;
-    pid_t pid, wpid;
+    pid_t pid, child;
     int status;
 
-    printf("buf: %s\n", buf);
-    printf("token: %s\n", token);
+    
+    while(strcmp(buf, "quit\n") != 0) {
 
     //token the rest
     while(token != NULL) {
-	    printf("%d\t: %s\n", i, token);
 	    argv[i] = token;
 	    token = strtok(NULL, " ");
 	    i++;
     }
     	 strtok(argv[i-1], "\n");
 	 argv[i] = NULL;
- 	 printf("%d\t: %s\n", i, argv[i]);
- /* 
+
+	 pid = fork();
+
+	 if(pid == 0) { //child process
+
 	 //execute the command
    	 if (execvp(cmd, argv) < 0) {
        		 perror("exec failed");
        		 exit(1);
    	 }
-*/
+	 } else if(pid < 0) {
+		 //error
+		} else { //parent process
+			child = wait(&status);
+		}
+	
+	 //compute the cpu and user time and the number of involuntary context switches
 	 getrusage(RUSAGE_SELF, &time_buffer); 
          printf("user microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec);
 	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec);
 	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw);
 
-   	 puts("Finished!");
-
+	 //print the prompt out and get ready to loop if necessary
+	 puts("[user2machine Home]$");
+	 fgets(buf, STR_LEN, stdin);
+	 printf("Command: %s\n");
+         token = strtok(buf, " ");
+         i=0;
+    }
    return 0;
 }
 
