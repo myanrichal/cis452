@@ -27,12 +27,8 @@ int main()
     pid_t pid, wpid;
     int status;
 
-    printf("buf: %s\n", buf);
-    printf("token: %s\n", token);
-
     //token the rest
     while(token != NULL) {
-	    printf("%d\t: %s\n", i, token);
 	    argv[i] = token;
 	    token = strtok(NULL, " ");
 	    i++;
