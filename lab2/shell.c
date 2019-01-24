@@ -17,7 +17,7 @@ int main()
 
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
-    printf("[user@machine Home]$");
+    printf("[user@machine Home]$ ");
 
     fgets(buf, STR_LEN, stdin);
     printf("Command: %s\n", buf);
@@ -27,7 +27,7 @@ int main()
     char* argv[MAX_ARG];
     char* cmd = buf;
     int i = 0;
-    pid_t pid, child;
+    pid_t pid;
     int status;
 
     
@@ -54,17 +54,17 @@ int main()
 	 } else if(pid < 0) {
 		 //error
 		} else { //parent process
-			child = wait(&status);
+			wait(&status);
 		}
 	
 	 //compute the cpu and user time and the number of involuntary context switches
 	 getrusage(RUSAGE_SELF, &time_buffer); 
-         printf("user microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec);
+         printf("\nuser microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec);
 	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec);
 	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw);
 
 	 //print the prompt out and get ready to loop if necessary
-	 printf("[user2machine Home]$");
+	 printf("[user@machine Home]$ ");
 	 fgets(buf, STR_LEN, stdin);
 	 printf("Command: %s\n", buf);
          token = strtok(buf, " ");
