@@ -24,19 +24,30 @@ int main()
     char* argc = "\0";
     argv[0] = "\0";
     int i = 0;
+    pid_t pid, wpid;
+    int status;
 
     printf("buf: %s\n", buf);
     printf("token: %s\n", token);
 
     //token the rest
     while(token != NULL) {
-	    printf("%d\t: %s", i, token);
+	    printf("%d\t: %s\n", i, token);
 	    argv[i] = token;
 	    token = strtok(NULL, " ");
-            printf("\targv: %s\n", argv[i]);
 	    i++;
     }
 
-    puts("END");
+   // while(strcmp(buf, "quit\n") != 0) {
+
+   	 puts("Before the exec");
+   	 if (execvp(argv[0], &argv[1]) < 0) {
+       		 perror("exec failed");
+       		 exit(1);
+   	 }
+   	 puts("After the exec");
+    //}
+
+   return 1;
 }
 
