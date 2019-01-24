@@ -21,7 +21,7 @@ int main()
     //returns first token
     char* token = strtok(buf, " ");
     char* argv[MAX_ARG];
-    char* argc = "\0";
+    char* cmd = buf;
     argv[0] = "\0";
     int i = 0;
     pid_t pid, wpid;
@@ -37,24 +37,14 @@ int main()
 	    token = strtok(NULL, " ");
 	    i++;
     }
+    	 strtok(argv[i-1], "\n");
 	 argv[i] = NULL;
  	 printf("%d\t: %s\n", i, argv[i]);
-	
-/*
-	argv[0] = "ls";
-	argv[1] = "-la";
-	argv[2] = NULL;
-	 printf("%d\t: %s\n", 0, argv[0]);
-	 printf("%d\t: %s\n", 1, argv[1]);
-	 printf("%d\t: %s\n", 2, argv[2]);
-*/
-
-
    
    // while(strcmp(buf, "quit\n") != 0) {
 
    	 puts("Before the exec");
-   	 if (execvp(argv[0], argv) == -1) {
+   	 if (execvp(cmd, argv) < 0) {
        		 perror("exec failed");
        		 exit(1);
    	 }
