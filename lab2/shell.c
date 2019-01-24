@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +11,8 @@
 int main()
 {
     char buf[STR_LEN];
+
+    struct rusage time_buffer;
 
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
@@ -22,7 +25,6 @@ int main()
     char* token = strtok(buf, " ");
     char* argv[MAX_ARG];
     char* cmd = buf;
-    argv[0] = "\0";
     int i = 0;
     pid_t pid, wpid;
     int status;
@@ -41,16 +43,18 @@ int main()
 	 argv[i] = NULL;
  	 printf("%d\t: %s\n", i, argv[i]);
    
-   // while(strcmp(buf, "quit\n") != 0) {
-
-   	 puts("Before the exec");
+	 //execute the command
    	 if (execvp(cmd, argv) < 0) {
        		 perror("exec failed");
        		 exit(1);
    	 }
-   	 puts("After the exec");
-    //}
 
-   return 1;
+	 getrusage(RUSAGE_SELF, &time_buffer);
+	 printf("user microseconds: %ld\n", time_buffer.ru_utime.tv_usec);
+	 
+
+   	 puts("Finished!");
+
+   return 0;
 }
 
