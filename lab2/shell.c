@@ -4,8 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/wait.h>
 #define STR_LEN 512
 #define MAX_ARG 10
+
+
+
 
 int main()
 {
@@ -22,10 +26,9 @@ int main()
     char* token = strtok(buf, " ");
     char* argv[MAX_ARG];
     char* cmd = buf;
-    argv[0] = "\0";
+    pid_t child;
+    int status; 
     int i = 0;
-    pid_t pid, wpid;
-    int status;
 
     //token the rest
     while(token != NULL) {
@@ -35,18 +38,18 @@ int main()
     }
     	 strtok(argv[i-1], "\n");
 	 argv[i] = NULL;
- 	 printf("%d\t: %s\n", i, argv[i]);
    
-   // while(strcmp(buf, "quit\n") != 0) {
+    while(strcmp(buf, "quit\n") != 0) {
 
-   	 puts("Before the exec");
+   	 puts("Before the exec\n");
    	 if (execvp(cmd, argv) < 0) {
        		 perror("exec failed");
        		 exit(1);
    	 }
-   	 puts("After the exec");
-    //}
+	 child = wait(&status);
+   	 puts("After the exec\n");
+    }
 
-   return 1;
+   return 0;
 }
 
