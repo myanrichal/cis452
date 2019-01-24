@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,9 +13,13 @@ int main()
 {
     char buf[STR_LEN];
 
+    struct rusage time_buffer;
+    struct rusage save_state;
+    getrusage(RUSAGE_CHILDREN, &time_buffer);
+
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
-    puts("[user@machine HomeQQ]$");
+    printf("[user@machine Home]$ ");
 
     fgets(buf, STR_LEN, stdin);
     printf("Command: %s\n", buf);
@@ -22,35 +28,52 @@ int main()
     char* token = strtok(buf, " ");
     char* argv[MAX_ARG];
     char* cmd = buf;
-    argv[0] = "\0";
     int i = 0;
-    pid_t pid, wpid;
+    pid_t pid;
     int status;
 
-    printf("buf: %s\n", buf);
-    printf("token: %s\n", token);
+    
+    while(strcmp(buf, "quit\n") != 0) {
 
     //token the rest
     while(token != NULL) {
-	    printf("%d\t: %s\n", i, token);
 	    argv[i] = token;
 	    token = strtok(NULL, " ");
 	    i++;
     }
     	 strtok(argv[i-1], "\n");
 	 argv[i] = NULL;
- 	 printf("%d\t: %s\n", i, argv[i]);
-   
-   // while(strcmp(buf, "quit\n") != 0) {
 
-   	 puts("Before the exec");
+	 pid = fork();
+
+	 if(pid == 0) { //child process
+
+	 //execute the command
    	 if (execvp(cmd, argv) < 0) {
        		 perror("exec failed");
        		 exit(1);
    	 }
-   	 puts("After the exec");
-    //}
+	 } else if(pid < 0) {
+		 //error
+		} else { //parent process
+			wait(&status);
+		}
+	
+	 //compute the cpu and user time and the number of involuntary context switches
+	 save_state = time_buffer;
+	 getrusage(RUSAGE_CHILDREN, &time_buffer); 
+	 
+	 printf("\nuser microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec - save_state.ru_utime.tv_usec);
+	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec - save_state.ru_stime.tv_usec);
+	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw - save_state.ru_nivcsw);
 
-   return 1;
+	 //print the prompt out and get ready to loop if necessary
+	 printf("[user@machine Home]$ ");
+	 fgets(buf, STR_LEN, stdin);
+	 printf("Command: %s\n", buf);
+         token = strtok(buf, " ");
+         i=0;
+    }
+   return 0;
 }
 
