@@ -17,7 +17,7 @@ int main()
 
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
-    puts("[user@machine Home]$");
+    printf("[user@machine Home]$");
 
     fgets(buf, STR_LEN, stdin);
     printf("Command: %s\n", buf);
@@ -64,9 +64,9 @@ int main()
 	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw);
 
 	 //print the prompt out and get ready to loop if necessary
-	 puts("[user2machine Home]$");
+	 printf("[user2machine Home]$");
 	 fgets(buf, STR_LEN, stdin);
-	 printf("Command: %s\n");
+	 printf("Command: %s\n", buf);
          token = strtok(buf, " ");
          i=0;
     }
