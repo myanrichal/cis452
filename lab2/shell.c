@@ -26,28 +26,43 @@ int main()
     char* token = strtok(buf, " ");
     char* argv[MAX_ARG];
     char* cmd = buf;
-    pid_t child;
+    pid_t child, pid;
     int status; 
     int i = 0;
 
-    //token the rest
-    while(token != NULL) {
-	    argv[i] = token;
-	    token = strtok(NULL, " ");
-	    i++;
-    }
-    	 strtok(argv[i-1], "\n");
-	 argv[i] = NULL;
-   
     while(strcmp(buf, "quit\n") != 0) {
 
-   	 puts("Before the exec\n");
-   	 if (execvp(cmd, argv) < 0) {
-       		 perror("exec failed");
-       		 exit(1);
-   	 }
-	 child = wait(&status);
-   	 puts("After the exec\n");
+	    //token the rest
+	    while(token != NULL) {
+		    argv[i] = token;
+		    token = strtok(NULL, " ");
+		    i++;
+	    }
+		 strtok(argv[i-1], "\n");
+		 argv[i] = NULL;
+	   
+		
+		 pid = fork();
+		 if (pid == 0) {
+			 //child process
+			 puts("Before the exec\n");
+			 if (execvp(cmd, argv) < 0) {
+				 perror("exec failed");
+				 exit(1);
+			 }
+		} else if(pid < 0) {
+			// error 
+		} else {
+			//parent process
+			child = wait(&status);
+		}
+
+		puts("After the exec\n\n");
+		puts("[user@machine HomeQQ]$");
+		fgets(buf, STR_LEN, stdin);
+		char* cmd = buf;
+		printf("Command: %s\n", buf);
+
     }
 
    return 0;
