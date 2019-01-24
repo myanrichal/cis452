@@ -52,7 +52,7 @@ int main()
 	 getrusage(RUSAGE_SELF, &time_buffer); 
          printf("user microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec);
 	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec);
-	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw);
+	 printf("involuntary context switches:\t%ld\n", time_buffer.nivcsw);
 
    	 puts("Finished!");
 
