@@ -58,7 +58,7 @@ int main()
 		}
 	
 	 //compute the cpu and user time and the number of involuntary context switches
-	 getrusage(RUSAGE_SELF, &time_buffer); 
+	 getrusage(RUSAGE_CHILDREN, &time_buffer); 
          printf("\nuser microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec);
 	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec);
 	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw);
