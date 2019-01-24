@@ -14,6 +14,8 @@ int main()
     char buf[STR_LEN];
 
     struct rusage time_buffer;
+    struct rusage save_state;
+    getrusage(RUSAGE_CHILDREN, &time_buffer);
 
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
@@ -58,10 +60,12 @@ int main()
 		}
 	
 	 //compute the cpu and user time and the number of involuntary context switches
+	 save_state = time_buffer;
 	 getrusage(RUSAGE_CHILDREN, &time_buffer); 
-         printf("\nuser microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec);
-	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec);
-	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw);
+	 
+	 printf("\nuser microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec - save_state.ru_utime.tv_usec);
+	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec - save_state.ru_stime.tv_usec);
+	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw - save_state.ru_nivcsw);
 
 	 //print the prompt out and get ready to loop if necessary
 	 printf("[user@machine Home]$ ");
