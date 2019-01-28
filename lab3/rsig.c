@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -21,7 +22,7 @@ int main() {
     int r, s;
     parent_pid = getpid(); 
 
-    printf("hello we are working today");
+    printf("hello we are working today\n");
 
     if ((pid = fork()) < 0) {
             perror ("fork failed");
@@ -39,39 +40,21 @@ int main() {
             } 
         }
     } else {
-        signal(SIGUSR1, catchSignal);
+    	while(1) {
+	    signal(SIGUSR1, catchSignal);
+            signal(SIGUSR2, catchSignal);
+            printf("waiting....  ");
+	    pause();
+	}
     }
 }
 
 
 void catchSignal(int sigIn) {
     if (sigIn == SIGUSR1){
-        printf("Received SIGUSR1!\n");
+        printf("....Received SIGUSR1!\n");
     } else if (sigIn == SIGUSR2) {
-        printf("Recieved SIGUSR2!\n");
+        printf("....Recieved SIGUSR2!\n");
     }
 }
 
-
-/*** 
- * 
-    write a parent program that:
-        spawns off a child process
-        installs signal handler(s) for the two user-defined signals (SIGUSR1/SIGUSR2)
-        when a user-defined signal is received, it reports the type of signal sent
-            note: it may be necessary to reinstall your signal handler after a signal is received
-        terminates gracefully upon receiving a Control-C
-    the child process should repeatedly:
-        wait a random amount of time (e.g. one to five seconds)
-        randomly send one of the two user-defined signals to its parent
-
-
-TODO: 
-        verify these things: 
-            fork is working
-            random signal is sent at random delay by child
-        
-        do these things: 
-            setup SIGUSR1/2  (user defined signals) 
-            catch the sent signal
-*/
