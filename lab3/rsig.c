@@ -13,7 +13,7 @@
 #define MAX 1024
 
 void catchSignal(int);
-
+void shutDownHandler(int);
 
 
 int main() {
@@ -40,6 +40,7 @@ int main() {
             } 
         }
     } else {
+	    signal(SIGINT, shutDownHandler);
     	while(1) {
 	    signal(SIGUSR1, catchSignal);
             signal(SIGUSR2, catchSignal);
@@ -54,7 +55,12 @@ void catchSignal(int sigIn) {
     if (sigIn == SIGUSR1){
         printf("....Received SIGUSR1!\n");
     } else if (sigIn == SIGUSR2) {
-        printf("....Recieved SIGUSR2!\n");
+        printf("....Received SIGUSR2!\n");
     }
+}
+
+void shutDownHandler (int sigNum) {
+	printf("\nOkay I'm shutting you down.\n");
+	exit(0);
 }
 
