@@ -6,8 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/wait.h>
 #define STR_LEN 512
 #define MAX_ARG 10
+
+
+
 
 int main()
 {
@@ -28,52 +32,45 @@ int main()
     char* token = strtok(buf, " ");
     char* argv[MAX_ARG];
     char* cmd = buf;
+    pid_t child, pid;
+    int status; 
     int i = 0;
-    pid_t pid;
-    int status;
 
-    
     while(strcmp(buf, "quit\n") != 0) {
 
-    //token the rest
-    while(token != NULL) {
-	    argv[i] = token;
-	    token = strtok(NULL, " ");
-	    i++;
-    }
-    	 strtok(argv[i-1], "\n");
-	 argv[i] = NULL;
-
-	 pid = fork();
-
-	 if(pid == 0) { //child process
-
-	 //execute the command
-   	 if (execvp(cmd, argv) < 0) {
-       		 perror("exec failed");
-       		 exit(1);
-   	 }
-	 } else if(pid < 0) {
-		 //error
-		} else { //parent process
-			wait(&status);
+	    //token the rest
+	    while(token != NULL) {
+		    argv[i] = token;
+		    token = strtok(NULL, " ");
+		    i++;
+	    }
+		 strtok(argv[i-1], "\n");
+		 argv[i] = NULL;
+	   
+		
+		 pid = fork();
+		 if (pid == 0) {
+			 //child process
+			 puts("Before the exec\n");
+			 if (execvp(cmd, argv) < 0) {
+				 perror("exec failed");
+				 exit(1);
+			 }
+		} else if(pid < 0) {
+			// error 
+		} else {
+			//parent process
+			child = wait(&status);
 		}
-	
-	 //compute the cpu and user time and the number of involuntary context switches
-	 save_state = time_buffer;
-	 getrusage(RUSAGE_CHILDREN, &time_buffer); 
-	 
-	 printf("\nuser microseconds:\t%ld\n", time_buffer.ru_utime.tv_usec - save_state.ru_utime.tv_usec);
-	 printf("cpu microseconds:\t%ld\n", time_buffer.ru_stime.tv_usec - save_state.ru_stime.tv_usec);
-	 printf("involuntary context switches:\t%ld\n", time_buffer.ru_nivcsw - save_state.ru_nivcsw);
 
-	 //print the prompt out and get ready to loop if necessary
-	 printf("[user@machine Home]$ ");
-	 fgets(buf, STR_LEN, stdin);
-	 printf("Command: %s\n", buf);
-         token = strtok(buf, " ");
-         i=0;
+		puts("After the exec\n\n");
+		puts("[user@machine HomeQQ]$");
+		fgets(buf, STR_LEN, stdin);
+		char* cmd = buf;
+		printf("Command: %s\n", buf);
+
     }
+
    return 0;
 }
 
