@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,9 +17,13 @@ int main()
 {
     char buf[STR_LEN];
 
+    struct rusage time_buffer;
+    struct rusage save_state;
+    getrusage(RUSAGE_CHILDREN, &time_buffer);
+
     puts("Welcome to SuperShell(TM)!");
     puts("Enter commands as you would any other shell:");
-    puts("[user@machine HomeQQ]$");
+    printf("[user@machine Home]$ ");
 
     fgets(buf, STR_LEN, stdin);
     printf("Command: %s\n", buf);
