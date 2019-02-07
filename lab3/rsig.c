@@ -60,7 +60,7 @@ void catchSignal(int sigIn) {
 }
 
 void shutDownHandler (int sigNum) {
-	printf("\nOkay I'm shutting you down.\n");
+	printf(" Okay I'm shutting you down.\n");
 	exit(0);
 }
 
