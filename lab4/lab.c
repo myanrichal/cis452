@@ -20,7 +20,6 @@ int fileCount = 0;
 int main()
 {
     pthread_t thread1;
-    void *result1;
     int status;
 
 
@@ -37,12 +36,6 @@ int main()
 // pass each thread a pointer to its respective argument
     if ((status = pthread_create (&thread1, NULL,  do_greeting3, buf)) != 0) {
         fprintf (stderr, "thread create error %d: %s\n", status, strerror(status));
-        exit (1);
-    }
-
-// join with the threads (wait for them to terminate);  get their return vals
-    if ((status = pthread_join (thread1, &result1)) != 0) {
-        fprintf (stderr, "join error %d: %s\n", status, strerror(status));
         exit (1);
     }
 
