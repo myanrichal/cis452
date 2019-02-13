@@ -16,12 +16,19 @@ void* do_greeting3 (void* arg);
 
 // global data for file count
 int fileCount = 0;
+float cumulativeTime = 0;
+pthread_mutex_t lock;
 
 int main()
 {
     pthread_t thread1;
     int status;
 
+    // attempt to init mutex, return 1 if error
+    if (pthread_mutex_init(&lock, NULL) != 0) {
+        printf("\n mutex init has failed\n");
+        return 1;
+    }
 
     while(1) {
 
@@ -50,19 +57,24 @@ void* do_greeting3 (void* arg)
 // note the cast of the void pointer to the desired data type
     char *buf = (char *) arg;
 
+    pthread_mutex_lock(&lock); // lock the thread for stopping race condition
 
 // generate random sleep to simulate reading from disk cache / hard drive
     if( rand() % 10 <= 8){
         sleep(1);
+	cumulativeTime++;
 	printf("\nFile %s accessed from disk cache.\n", buf);
     } else {
         int time = rand() % 4 + 7;
         sleep( time ); // sleep for 7-10 seconds randomly
+	cumulativeTime += time;
 	printf("\nFile %s accessed from hard drive.\n", buf);
     }
 
     fileCount++;
     free(buf);
+
+    pthread_mutex_unlock(&lock); // unlock the thread
 
     return NULL;
 }
@@ -71,7 +83,12 @@ void* do_greeting3 (void* arg)
 // it prints the files serviced
 // then it exits gracefully, closing all threads
 void shutDownHandler(int signum){
+    float avgTime = cumulativeTime / fileCount;
     printf("\nNumber of files accessed: %d\n", fileCount);
+    printf("Average access time: %f\n", avgTime);
+
+    pthread_mutex_destroy(&lock); // destroy the mutex
+
     exit(0);
 }
 
