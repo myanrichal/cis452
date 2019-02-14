@@ -42,11 +42,12 @@ int main() {
     } else {
 	    signal(SIGINT, shutDownHandler);
     	while(1) {
-	    signal(SIGUSR1, catchSignal);
+	        signal(SIGUSR1, catchSignal);
             signal(SIGUSR2, catchSignal);
             printf("waiting....  ");
-	    pause();
-	}
+            fflush(stdout);
+	        pause();
+	    }
     }
 }
 
