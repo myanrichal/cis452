@@ -57,24 +57,27 @@ void* do_greeting3 (void* arg)
 // note the cast of the void pointer to the desired data type
     char *buf = (char *) arg;
 
-    pthread_mutex_lock(&lock); // lock the thread for stopping race condition
 
 // generate random sleep to simulate reading from disk cache / hard drive
     if( rand() % 10 <= 8){
         sleep(1);
-	cumulativeTime++;
-	printf("\nFile %s accessed from disk cache.\n", buf);
+        pthread_mutex_lock(&lock); // lock the thread for stopping race condition
+	    cumulativeTime++;
+        fileCount++;
+        pthread_mutex_unlock(&lock); // unlock the thread
+	    printf("\nFile %s accessed from disk cache.\n", buf);
     } else {
         int time = rand() % 4 + 7;
         sleep( time ); // sleep for 7-10 seconds randomly
-	cumulativeTime += time;
-	printf("\nFile %s accessed from hard drive.\n", buf);
+	    pthread_mutex_lock(&lock); // lock the thread for stopping race condition
+        cumulativeTime += time;
+        fileCount++;
+        pthread_mutex_unlock(&lock); // unlock the thread
+	    printf("\nFile %s accessed from hard drive.\n", buf);
     }
 
-    fileCount++;
     free(buf);
 
-    pthread_mutex_unlock(&lock); // unlock the thread
 
     return NULL;
 }
