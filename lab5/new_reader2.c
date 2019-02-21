@@ -4,24 +4,28 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h> 
+#include <stdlib.h>
+#include <signal.h>
 
 #define READER 1
 #define WRITER 0
 
+void shutDownHandler(int);
+
 char *str;
-int *flag;
+int *flag, shmid, shmid2;
   
 int main() 
 { 
+    signal(SIGINT, shutDownHandler);
+
     // ftok to generate unique key 
     key_t key = ftok("/home/vredevch/cis452/lab5/example1.c", 123456);
     key_t flagkey = ftok("/home/vredevch/cis452/lab5/new_reader.c", 123456);
-    key_t turnkey = ftok("/home/vredevch/cis452/lab5/new_writer.c", 123456);
 
     // shmget returns an identifier in shmid 
-    int shmid = shmget(key, 4096, IPC_CREAT|S_IRUSR|S_IWUSR); 
-    int shmid2 = shmget(flagkey, 4096, IPC_CREAT|S_IRUSR|S_IWUSR);
-    int shmid3 = shmget(turnkey, 4096, IPC_CREAT|S_IRUSR|S_IWUSR);
+    shmid = shmget(key, 4096, IPC_CREAT|S_IRUSR|S_IWUSR); 
+    shmid2 = shmget(flagkey, 4096, IPC_CREAT|S_IRUSR|S_IWUSR);
   
     // shmat to attach to shared memory 
     str = (char*) shmat(shmid,(void*)0,0); 
@@ -44,3 +48,16 @@ int main()
      
     return 0; 
 } 
+
+void shutDownHandler (int sigNum) {
+    //detach from shared memory  
+    shmdt(str); 
+    shmdt(flag);
+
+    shmctl(shmid, IPC_RMID, NULL);
+    shmctl(shmid2, IPC_RMID, NULL);
+
+	printf("\nClean shutdown. Shared memory detached and destroyed.\n");
+
+	exit(0);
+}
