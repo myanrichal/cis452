@@ -8,9 +8,9 @@ char *str;
 int *turn;  //0 writer turn
             //1 reader1 turn
             //2 reader2 turn
-int *flag[2] = {0,0};   //flag[0] writer
-                            //flag[1] reader1
-                            //flag[2] reader2
+int *flag;   //flag[0] writer
+                //flag[1] reader1
+                //flag[2] reader2
 
 void shutDownHandler(int);
   
@@ -27,15 +27,14 @@ int main()
     // shmat to attach to shared memory 
     str = (char*) shmat(shmid1,(void*)0,0);
     turn = (int*) shmat(shmid2, (void*)0,0);
-    *flag = (int*) shmat(shmid3, (void*)0,0);
+    flag = (int*) shmat(shmid3, (void*)0,0);
 
-
-    do{    
-        *flag[1] = 1;
+    do{
+        *(flag+1) = 1; //sets flag[1] to 1
         *turn = 0;
-        while(*flag[1] == 1 && *turn == 1);
+        while(*(flag) == 1 && *turn == 1);
         printf("Data read from memory: %s\n",str);
-        *flag[1] = 0;
+        *(flag+1) = 0; //sets flag[1] to 0
 
     }while(1);
 

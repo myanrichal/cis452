@@ -8,7 +8,7 @@
 
 char *str;
 int *turn;
-_Bool *flag[2];
+int *flag;
 int shmid1, shmid2, shmid3;
 
 void shutDownHandler(int);
@@ -29,14 +29,20 @@ int main()
     // shmat to attach to shared memory 
     str = (char*) shmat(shmid1,(void*)0,0);
     turn = (int*) shmat(shmid2, (void*)0,0);
-    *flag = (_Bool*) shmat(shmid3, (void*)0,0);
+    flag = (int*) shmat(shmid3, (void*)0,0);
 
+    *(flag) = 0;
+    *(flag+1) = 0;
 
 
     do{
+        *(flag) = 1; //sets flag[0] to 1
+        *turn = 1;
+        while(*(flag+1) == 1 && *turn == 1);
         printf("Write Data:  ");
         fgets(str, STR_LEN, stdin);
         printf("Data written in memory: %s\n",str);
+        *(flag) = 0; //sets flag[0] to 0
     }while(1);
       
 
