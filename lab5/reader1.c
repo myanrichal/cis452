@@ -25,18 +25,18 @@ int main()
     int shmid3 = shmget(key,1024,0666|IPC_CREAT); 
   
     // shmat to attach to shared memory 
-    str = (char*) shmat(shmid1,(void*)0,0);
-    turn = (int*) shmat(shmid2, (void*)0,0);
-    flag = (int*) shmat(shmid3, (void*)0,0);
+    str = (char*) shmat(shmid1, (void*)0, SHM_RDONLY);
+    turn = (int*) shmat(shmid2, (void*)0, 0);
+    flag = (int*) shmat(shmid3, (void*)0, 0);
 
     do{
         *(flag+1) = 1; //sets flag[1] to 1
         *turn = 0;
-        while(*(flag) == 1 && *turn == 1);
+        while(*(flag) == 1 && *turn == 0);
         printf("Data read from memory: %s\n",str);
         *(flag+1) = 0; //sets flag[1] to 0
 
-    }while(1);
+    }while(0);
 
 
 

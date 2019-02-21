@@ -33,13 +33,14 @@ int main()
 
     *(flag) = 0;
     *(flag+1) = 0;
+    printf("\nFlag:\n%d\t%d\n", *(flag), *(flag+1));
 
 
     do{
         *(flag) = 1; //sets flag[0] to 1
         *turn = 1;
         while(*(flag+1) == 1 && *turn == 1);
-        printf("Write Data:  ");
+        printf("\nWrite Data:  ");
         fgets(str, STR_LEN, stdin);
         printf("Data written in memory: %s\n",str);
         *(flag) = 0; //sets flag[0] to 0
