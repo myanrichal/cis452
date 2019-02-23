@@ -6,10 +6,19 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+#include <semaphore.h>
+#include <signal.h>
 
 #define SIZE 16
 #define STR_LEN 3
 
+void shutDownHandler(int);
+
+volatile int32_t exit_flag = 0;
+sem_t g_Sem;
+
+//TODO find out how to get exit_flag working
+//TODO sem_post to release to execute
 int main (int argc, char *argv[])
 {
    int status;
@@ -17,9 +26,15 @@ int main (int argc, char *argv[])
    int shmId;
    pid_t pid;
 
-    if(argc > 2 || argc <= 0)
+   signal(SIGINT, shutDownHandler);
+   
+   sem_init(&g_Sem, 1, 0);
+
+
+    if(argc > 2 || argc <= 0){
+	printf("Bad args dummy\n");
         exit(1);
-    else
+    } else
         loop = atoi(argv[1]);
 
     printf("# loops: %ld\n", loop);
@@ -39,9 +54,11 @@ int main (int argc, char *argv[])
    if (!(pid = fork())) {
       for (i=0; i<loop; i++) {
         // swap the contents of shmPtr[0] and shmPtr[1]
-        temp = shmPtr[0];
+        sem_wait(&g_Sem);
+	temp = shmPtr[0];
         shmPtr[0]=shmPtr[1];
         shmPtr[1]=temp;
+	exit_flag = 1;
       }
       if (shmdt (shmPtr) < 0) {
         perror ("just can't let go\n");
@@ -52,10 +69,11 @@ int main (int argc, char *argv[])
    else
       for (i=0; i<loop; i++) {
         // swap the contents of shmPtr[1] and shmPtr[0]
-        temp = shmPtr[1];
+        sem_wait(&g_Sem);
+	temp = shmPtr[1];
         shmPtr[1]=shmPtr[0];
         shmPtr[0]=temp;
-
+	exit_flag = 1;
       }
 
    wait (&status);
@@ -71,4 +89,10 @@ int main (int argc, char *argv[])
    }
 
    return 0;
+}
+
+void shutDownHandler(int sigNum) {
+	
+    printf("\nShutting you down\n");
+    exit(0);
 }
