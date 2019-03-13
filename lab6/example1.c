@@ -14,30 +14,26 @@
 
 void shutDownHandler(int);
 
-volatile int32_t exit_flag = 0;
-sem_t g_Sem;
+sem_t *semaphore;
 
-//TODO find out how to get exit_flag working
-//TODO sem_post to release to execute
 int main (int argc, char *argv[])
 {
    int status;
    long int i, loop, temp, *shmPtr;
-   int shmId;
+   int shmId, shmid;
    pid_t pid;
+   key_t key = ftok("/home/vredevch/cis452/lab6/example1.c", 123456);
+
 
    signal(SIGINT, shutDownHandler);
    
-   sem_init(&g_Sem, 1, 0);
+   shmid = shmget(key, 4096, IPC_CREAT|S_IRUSR|S_IWUSR);
+   
+   semaphore = (sem_t*) shmat(shmid, 0, 0);
 
-
-    if(argc > 2 || argc <= 0){
-	printf("Bad args dummy\n");
-        exit(1);
-    } else
-        loop = atoi(argv[1]);
-
-    printf("# loops: %ld\n", loop);
+   sem_init(semaphore, 1, 1);
+ 
+   loop = atoi(argv[1]);
 
    if ((shmId = shmget (IPC_PRIVATE, SIZE, IPC_CREAT|S_IRUSR|S_IWUSR)) < 0) {
       perror ("i can't get no..\n");
@@ -54,30 +50,35 @@ int main (int argc, char *argv[])
    if (!(pid = fork())) {
       for (i=0; i<loop; i++) {
         // swap the contents of shmPtr[0] and shmPtr[1]
-        sem_wait(&g_Sem);
+        sem_wait(semaphore);
 	temp = shmPtr[0];
         shmPtr[0]=shmPtr[1];
         shmPtr[1]=temp;
-	exit_flag = 1;
+        sem_post(semaphore);
       }
       if (shmdt (shmPtr) < 0) {
         perror ("just can't let go\n");
         exit (1);
       }
+      shmdt(semaphore);
       exit(0);
    }
-   else
+   else {
       for (i=0; i<loop; i++) {
         // swap the contents of shmPtr[1] and shmPtr[0]
-        sem_wait(&g_Sem);
+        sem_wait(semaphore);
 	temp = shmPtr[1];
         shmPtr[1]=shmPtr[0];
         shmPtr[0]=temp;
-	exit_flag = 1;
+        sem_post(semaphore);
       }
+   }
 
    wait (&status);
    printf ("values: %li\t%li\n", shmPtr[0], shmPtr[1]);
+
+   shmdt(semaphore);
+   shmctl(shmid, IPC_RMID, 0);
 
    if (shmdt (shmPtr) < 0) {
       perror ("just can't let go\n");
