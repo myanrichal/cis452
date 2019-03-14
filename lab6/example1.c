@@ -51,7 +51,7 @@ int main (int argc, char *argv[])
       for (i=0; i<loop; i++) {
         // swap the contents of shmPtr[0] and shmPtr[1]
         sem_wait(semaphore);
-	temp = shmPtr[0];
+	     temp = shmPtr[0];
         shmPtr[0]=shmPtr[1];
         shmPtr[1]=temp;
         sem_post(semaphore);
@@ -67,7 +67,7 @@ int main (int argc, char *argv[])
       for (i=0; i<loop; i++) {
         // swap the contents of shmPtr[1] and shmPtr[0]
         sem_wait(semaphore);
-	temp = shmPtr[1];
+	     temp = shmPtr[1];
         shmPtr[1]=shmPtr[0];
         shmPtr[0]=temp;
         sem_post(semaphore);
