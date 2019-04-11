@@ -11,12 +11,14 @@ int main ()
 {
    int shmId;
    char *shmPtr;
+   struct shmid_ds buf;
+   key_t password = ftok("/usr", 3);
 
-   if ((shmId = shmget (IPC_PRIVATE, FOO, IPC_CREAT|S_IRUSR|S_IWUSR)) < 0) {
+   if ((shmId = shmget (password, FOO, IPC_CREAT+S|S_IRUSR+S|S_IWUSR)) < 0) {
       perror ("i can't get no..\n");
       exit (1);
    }
-   if ((shmPtr = shmat (shmId, 0, 0)) == (void*) -1) {
+   if ((shmPtr = shmat (shmId, NULL, 0)) == (void*) -1) {
       perror ("can't attach\n");
       exit (1);
    }
@@ -28,7 +30,6 @@ int main ()
       exit (1);
    }
 
-   struct shmid_ds buf;
 
    if (shmctl(shmId, SHM_STAT, &buf) == -1) {
       perror ("can't deallocate\n");
@@ -37,7 +38,6 @@ int main ()
 
    printf("Size of segment: %zu\n", buf.shm_segsz);
    printf("Shared memory ID: %d\n", shmId);
-   pause();
 
    return 0;
 } 
